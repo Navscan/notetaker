@@ -22,13 +22,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.5'
+
       - name: Download Keystore
         run: curl -sL ${{ secrets.KEYSTORE_URL }} -o flipstack-release.jks
 
       - name: Build Release APK
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        run: ./gradlew assembleRelease
+        run: gradle assembleRelease
 
       - name: Verify APK Signature
         run: |
