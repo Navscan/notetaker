@@ -28,21 +28,13 @@ jobs:
           gradle-version: '8.5'
 
       - name: Build Release APK
-        env:
-          KEYSTORE_PASSWORD: "password123"
         run: gradle assembleRelease
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: NoteTaker-APK
-          path: app/build/outputs/apk/release/*.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
-          name: NoteTaker v1.0.${{ github.run_number }}
+          name: "NoteTaker v1.0.${{ github.run_number }}"
           files: app/build/outputs/apk/release/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
