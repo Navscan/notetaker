@@ -22,28 +22,31 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: '8.5'
-
       - name: Download Keystore
         run: curl -sL ${{ secrets.KEYSTORE_URL }} -o flipstack-release.jks
 
       - name: Build Release APK
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        run: gradle assembleRelease
+        run: ./gradlew assembleRelease
 
       - name: Verify APK Signature
         run: |
           $ANDROID_HOME/build-tools/34.0.0/apksigner verify --verbose app/build/outputs/apk/release/*.apk
+
+      - name: Generate Checksums
+        run: |
+          cd app/build/outputs/apk/release/
+          sha256sum *.apk > checksums.txt
+          cd -
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: "NoteTaker v1.0.${{ github.run_number }}"
-          files: app/build/outputs/apk/release/*.apk
+          files: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/release/checksums.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
