@@ -27,8 +27,17 @@ jobs:
         with:
           gradle-version: '8.5'
 
+      - name: Download Keystore
+        run: curl -sL ${{ secrets.KEYSTORE_URL }} -o flipstack-release.jks
+
       - name: Build Release APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: gradle assembleRelease
+
+      - name: Verify APK Signature
+        run: |
+          $ANDROID_HOME/build-tools/34.0.0/apksigner verify --verbose app/build/outputs/apk/release/*.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
